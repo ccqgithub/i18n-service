@@ -1,0 +1,7 @@
+{
+	"esversion": 6,
+	"eqeqeq": false,
+	"quotmark": true,
+	"asi": true,
+	"boss": true
+}
