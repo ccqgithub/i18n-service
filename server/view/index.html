@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+  <meta name="keywords" content="<%= typeof keywords == 'undefined' ? '' : keywords %>">
+  <meta name="description" content="<%= typeof description == 'undefined' ? '' : description %>">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="expires" content="0">
+  <base href="<%= typeof baseUrl == 'undefined' ? '' : baseUrl %>">
+  <title><%= typeof title == 'undefined' ? '' : title %></title>
+  <% if (typeof canonicalUrl != 'undefined') { %>
+  <link rel="canonical" href="<%= canonicalUrl %>" />
+  <% } %>
+  <link href="/favicon.ico" rel="bookmark" type="image/x-icon" />
+  <link href="/favicon.ico" rel="icon" type="image/x-icon" />
+  <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+</head>
+<body>
+  <%= pageData.body %>
+
+  <!-- pageData -->
+  <script type="text/javascript">
+    window.pageBaseUrl = '<%= baseUrl %>';
+    window.pageLocale = '<%= locale %>';
+    window.pageLocales = '<%= locales %>';
+    window.pageLocaleData = <%- JSON.stringify(typeof localeData == 'undefined' ? {} : localeData) %>;
+    window.pageData = <%- JSON.stringify(typeof pageData == 'undefined' ? {} : pageData) %>;
+  </script><!--ignore-->
+  <!-- pageData end -->
+</body>
+</html>

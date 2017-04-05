@@ -1,150 +1,176 @@
-"use strict";
-
-/**
- * 项目主文件
- */
-
 var program = require('commander');
 var fs = require('fs');
 var path = require('path');
+var yaml = require('js-yaml');
 
-// 参数
+// 启动参数
 program
   .option('--env [env]', '[koa server:] Specify the env(local by default)')
   .parse(process.argv);
 
-// 配置
-var configFile = path.join(__dirname, './config', (program.env || 'local') + '.js');
-var config = require(configFile);
+// 加载配置
+var appEnv = program.env || 'local';
+var appConfigAll = yaml.load(
+  fs.readFileSync(path.join(__dirname, '../config.yaml'), 'utf8')
+);
+var appConfig = appConfigAll[appEnv];
 
-// env
-process.env.DEBUG = config.debug;
-
-var koa = require('koa');
-var logger = require('koa-logger');
-var morgan = require('koa-morgan');
-var session = require('koa-session');
-var staticServe = require('koa-static');
-var views = require('koa-views');
-var bodyParser = require('koa-body');
-var conditional = require('koa-conditional-get');
-var compress = require('koa-compress')
-var etag = require('koa-etag');
-var rewrite = require('koa-rewrite');
-var debug = require('debug')('app:boot');
+// process env 参数
+Object.assign(process.env, appConfig.env || {});
 
 // new app
+var koa = require('koa');
 var app = koa();
 
-app.name = 'i18n-service';
+app.name = 'koa-site-start';
 app.proxy = true; //如果为 true，则解析 "Host" 的 header 域，并支持 X-Forwarded-Host
 app.subdomainOffset = 2; //默认为2，表示 .subdomains 所忽略的字符偏移量。
+app.root = __dirname;
+app.config = appConfig;
 
-// err events
-// app.on('error', function(err){
-//     console.log(err);
-// });
+/**==============flow start============**/
+require('./util/flow')(app, [
 
-// compress
-app.use(compress({
-  threshold: 2048,
-  flush: require('zlib').Z_SYNC_FLUSH
-}));
-// use it upstream from etag so
-// that they are present
-app.use(conditional());
-// add etags
-app.use(etag());
-
-// 静态文件
-app.use(staticServe(path.join(__dirname, '../public')));
-
-// 开启访问日志
-// app.use(logger());
-app.use(morgan.middleware('combined', {
-  skip: function (req, res) {
-    // return res.statusCode == 200;
-  }
-}));
-
-// 开启session
-app.keys = ["You're right, taht's me !"];
-app.use(session(app));
-
-// 总入口
-app.use(function * (next) {
-  var
-    status,
-    message;
-
-  this.compress = true;
-  this.state.config = config;
-  this.state.remote = {};
-  this.state.locals = {};
-
-  // is ajax xhr
-  this.state.remote.isAjax = this.request.headers['x-requested-with'] && this
-    .request
-    .headers['x-requested-with']
-    .toLowerCase() == 'xmlhttprequest';
-
-  // locale
-  this.state.locals.baseUrl = this.request.protocol + '://' + this.request.host + '/' + this.state.locale + '/';
-
-  try {
-    yield next;
-
-    if (this.state.remote.isAjax) {
-      this.body = {
-        status: 200,
-        result: this.state.result,
-        message: this.state.message || 'ok'
-      };
+  // 路径重写
+  {
+    flow: 'rewrite',
+    options: {
+      rewrites: [
+        [/^\/home\/?$/, '/'],
+      ]
     }
-  } catch (e) {
-    e.message && console.log(e.message);
-    console.log(e.stack || e);
+  },
 
-    if (typeof e == 'object' && typeof e.message != 'undefined') {
-      status = e.status || 500;
-      message = e.message;
-    } else {
-      status = 500;
-      message = e;
+  // 网络优化
+  {
+    flow: 'network-optimize',
+    options: {
+      etag: true,
+      compress: true,
     }
+  },
 
-    if (!this.state.remote.isAjax) {
-      yield this.render('exception', {});
-    } else {
-      this.body = {
-        code: status || 500,
-        expose: this.state.expose,
-        message: message
-      };
+  // 静态资源
+  {
+    flow: 'static',
+    options: {
+      roots: [
+        path.join(__dirname, '../public'),
+        path.join(__dirname, './storage'),
+      ]
+    }
+  },
+
+  // 拦截请求
+  {
+    flow: 'stop',
+    options: {
+      paths: [
+        /^\/static|static2\//
+      ]
+    }
+  },
+
+  // 开启日志记录
+  {
+    flow: 'log',
+    options: {}
+  },
+
+  // 路径跳转
+  {
+    flow: 'redirect',
+    options: {
+      redirects: [
+        // [fromPattern, 'replaceTo', status]
+      ]
+    }
+  },
+
+  // 本地化 or 国际化
+  {
+    flow: 'locale',
+    options: {
+      locales: ['zh-cn', 'en'],
+      excludes: [
+        /\/sitemap\.xml/
+      ],
+    }
+  },
+
+  // 预渲染，针对搜索引擎,
+  // 不需要就不设，配置错误的话，搜索引擎将抓不到任何数据
+  // {
+  //   flow: 'prerender',
+  //   options: {
+  //     prerender: 'http://prerender.github.com:8080/',
+  //     username: 'test',
+  //     password: '123456',
+  //   }
+  // },
+
+  // 开启session
+  {
+    flow: 'session',
+    options: {
+      keys: ['koa-site-session-key1']
+    }
+  },
+
+  // 错误捕获处理
+  {
+    flow: 'error',
+    options: {}
+  },
+
+  // 结果捕获
+  {
+    flow: 'ajax-result',
+    options: {}
+  },
+
+  // 常用状态准备
+  {
+    flow: 'prepare-state',
+    options: {}
+  },
+
+  // post 数据解析
+  {
+    flow: 'body-parser',
+    options: {}
+  },
+
+  // 模板渲染
+  {
+    flow: 'view',
+    options: {
+      root: path.join(__dirname, '../public/_view/'),
+      opts: {
+        extension: 'html',
+        map: {
+          html: 'ejs' // html文件当做ejs模板
+        }
+      }
+    }
+  },
+
+  // 加载路由
+  {
+    flow: 'router',
+    options: {
+      dir: path.join(__dirname, './router'),
+      deep: false,
     }
   }
-});
+]);
 
-// body
-app.use(bodyParser({
-  multipart: true
-}));
+/**==============flow end============**/
 
-// views
-app.use(views(path.join(__dirname, '../public/_view'), {
-  extension: 'html',
-  map: {
-    html: 'ejs'
-  }
-}));
-
-// 加载路由
-app.use(require('./router/main').routes());
-
-// 404
+// 默认404
 app.use(function * (next) {
   this.throw('Not Found', 404);
 });
 
 // 开启监听服务
-var server = app.listen(config.serverPort);
+var server = app.listen(appConfig.port);
