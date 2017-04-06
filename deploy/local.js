@@ -1,4 +1,3 @@
-var fe = require('../fe/deploy/lib');
 var server = require('../server/deploy/lib');
 
 var env = 'local';

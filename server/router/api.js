@@ -1,7 +1,7 @@
 "use strict"
 
 /**
- * 主路由
+ * api
  */
 
 var os = require('os');
@@ -10,10 +10,10 @@ var path = require('path');
 var router = require('koa-router')();
 
 // 首页
-router.get('/', function * (next) {
-  this.state.pageData = {
+router.get('/api/query', function * (next) {
+  var client = this.request.query.client;
+  var context = this.request.query.context;
 
-  };
   yield this.render('index', this.state.locals);
 });
 

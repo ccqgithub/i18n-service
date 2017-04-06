@@ -88,15 +88,15 @@ require('./util/flow')(app, [
   },
 
   // 本地化 or 国际化
-  {
-    flow: 'locale',
-    options: {
-      locales: ['zh-cn', 'en'],
-      excludes: [
-        /\/sitemap\.xml/
-      ],
-    }
-  },
+  // {
+  //   flow: 'locale',
+  //   options: {
+  //     locales: ['zh-cn', 'en'],
+  //     excludes: [
+  //       /\/sitemap\.xml/
+  //     ],
+  //   }
+  // },
 
   // 预渲染，针对搜索引擎,
   // 不需要就不设，配置错误的话，搜索引擎将抓不到任何数据
@@ -145,7 +145,7 @@ require('./util/flow')(app, [
   {
     flow: 'view',
     options: {
-      root: path.join(__dirname, '../public/_view/'),
+      root: path.join(__dirname, './view/'),
       opts: {
         extension: 'html',
         map: {

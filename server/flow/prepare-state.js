@@ -3,7 +3,7 @@
  */
 
 var path = require('path');
-var LocaleHelper = require('../helper/locale');
+// var LocaleHelper = require('../helper/locale');
 var MockHelper = require('../helper/mock');
 
 module.exports = function(app, options={}) {
@@ -18,10 +18,10 @@ module.exports = function(app, options={}) {
     // this.state.remoteIp = 11111;
 
     // helpers
-    this.state.localeHelper = new LocaleHelper(path.join(this.app.root, './locale'), options.translates, this.state.locale);
-    this.state.i18n = function(msgid, msgctx, params) {
-      return this.state.localeHelper.i18n(msgid, msgctx, params);
-    }.bind(this);
+    // this.state.localeHelper = new LocaleHelper(path.join(this.app.root, './locale'), options.translates, this.state.locale);
+    // this.state.i18n = function(msgid, msgctx, params) {
+    //   return this.state.localeHelper.i18n(msgid, msgctx, params);
+    // }.bind(this);
 
     this.state.mockHelper = new MockHelper({
       mockDir: path.join(__dirname, '../mock'),
@@ -32,7 +32,7 @@ module.exports = function(app, options={}) {
     this.state.locals = this.state.locals || {};
     this.state.locals.locales = this.state.locales;
     this.state.locals.locale = this.state.locale;
-    this.state.locals.localeData = this.state.localeHelper.getLangSet();
+    // this.state.locals.localeData = this.state.localeHelper.getLangSet();
     this.state.locals.baseUrl = this.origin + '/';
     this.state.locals.baseUrlWithLocale = this.state.hasLocale ? this.state.locals.baseUrl + this.locale + '/' : this.state.locals.baseUrl;
     this.state.locals.fullUrl = this.request.href;
