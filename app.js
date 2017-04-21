@@ -9,7 +9,7 @@ var path = require('path');
 var yaml = require('js-yaml');
 
 var env = process.env.NODE_SITE_ENV || 'local';
-var config = require(path.join(__dirname, './config', env + '.js'));
+var config = require(path.join(__dirname, './config/env', env + '.js'));
 
 // env
 process.env.DEBUG = config.debug;
@@ -148,6 +148,7 @@ app.use(views(path.join(__dirname, './view'), {
 
 // router
 app.use(require('./router/main').routes());
+app.use(require('./router/client').routes());
 
 // 404
 app.use(function * (next) {

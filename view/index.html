@@ -2,33 +2,361 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Document</title>
+  <title>翻译</title>
 
   <style>
+    *, *::before, *::after {
+      box-sizing: inherit;
+      padding: 0;
+      margin: 0;
+    }
+    html {
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    body {
+      padding: 20px;
+    }
+    .loading{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 50px;
+      text-align: center;
+      color: #fff;
+    }
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    .top select,
+    .top input,
+    .top button {
+      display: inline-block;
+      min-width: 150px;
+      line-height: 20px;
+      height: 30px;
+      padding: 5px;
+      vertical-align: middle;
+    }
+    .top button {
+      cursor: pointer;
+    }
+    .top-item {
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
 
+    .list {
+      margin-top: 20px;
+    }
+
+    table {
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th {
+      border: 1px solid #ddd;
+      background: #eee;
+      padding: 5px;
+      text-align: left;
+    }
+
+    table td {
+      border: 1px solid #ddd;
+      padding: 5px;
+    }
+
+    .import {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      top: 0;
+      z-index: 50;
+      background: #fff;
+    }
+    .import .c {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 50px;
+      padding: 20px;
+    }
+    .import textarea {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #ddd;
+      padding: 5px;
+    }
+    .import .b {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0px;
+      padding: 20px;
+    }
+    .import .b button {
+      line-height: 20px;
+      height: 30px;
+      margin-right: 20px;
+      padding: 0 50px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <div id="app">
+    <div class="loading" v-if="isLoading">
+      loading...
+    </div>
 
+    <div class="import" v-if="isImportShow">
+      <div class="c">
+        <textarea v-model="importJson" placeholder="贴入json..."></textarea>
+      </div>
+      <div class="b">
+        <button type="button" @click="saveImport">导入</button>
+        <button type="button" @click="isImportShow = false">取消</button>
+      </div>
+    </div>
+
+    <div class="top">
+      <div class="top-item">
+        <label>站点：</label>
+        <select v-model="site" @change="getLocales">
+          <option :value="item" v-for="item in siteList">{{item}}</option>
+        </select>
+      </div>
+      <div class="top-item">
+        <label>语言：</label>
+        <select v-model="locale" @change="getTranslates">
+          <option :value="item" v-for="item in localeList">{{item}}</option>
+        </select>
+      </div>
+      <div class="top-item">
+        <label>类型：</label>
+        <select v-model="type" @change="getTranslates">
+          <option value="ALL">全部</option>
+          <option value="TRANSLATED">已翻译</option>
+          <option value="NOT_TRANSLATED">未翻译</option>
+        </select>
+      </div>
+      <div class="top-item">
+        <label>context：</label>
+        <input type="text" v-model="context" placeholder="context..." @change="getTranslates">
+      </div>
+      <div class="top-item">
+        <label>keyword：</label>
+        <input type="text" v-model="keyword" placeholder="key, value" @change="getTranslates">
+      </div>
+      <div class="top-item">
+        <button type="button" @click="getTranslates">搜索</button>
+      </div>
+      <div class="top-item">
+        <button type="button" @click="showImport">导入JSON</button>
+      </div>
+    </div>
+
+    <div class="list">
+      <table>
+        <thead>
+          <tr>
+            <th width="20%">context</th>
+            <th width="30%">key</th>
+            <th width="30%">value</th>
+            <th width="20%">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in translateList">
+            <td>{{item.context}}</td>
+            <td>{{item.key}}</td>
+            <td>
+              {{item.value}}
+            </td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script src="/assets/js/jquery-3.2.1.js"></script>
   <script src="/assets/js/vue.min.js"></script>
   <script>
+    Vue.config.devtools = true;
+
     new Vue({
       el: '#app',
       data: {
-        isLoading: false
+        isLoading: false,
+        isImportShow: false,
+
+        siteList: [],
+        localeList: [],
+        translateList: [],
+
+        site: '',
+        locale: '',
+        type: 'ALL',
+        keyword: '',
+        context: '',
+
+        importJson: '',
       },
       methods: {
-        getSites() {
-          
+        showImport: function() {
+          if (!this.site || !this.locale) {
+            alert('没有选择语言');
+            return;
+          }
+
+          this.isImportShow = true;
+        },
+        saveImport: function() {
+          var error = false;
+
+          try {
+            var data = JSON.parse(this.importJson.trim());
+
+            if (typeof data != 'object' || Array.isArray(data)) {
+              alert('json格式不对');
+              return;
+            }
+
+            Object.keys(data).forEach(function(context) {
+              var obj = data[context];
+              if (typeof obj != 'object' || Array.isArray(obj)) {
+                error = true;
+                return;
+              }
+              Object.keys(obj).forEach(function(key) {
+                if (typeof obj[key] != 'string') {
+                  error = true;
+                  return;
+                }
+              });
+            });
+          } catch(e) {
+            console.log(e)
+            alert('json格式不对');
+            return;
+          }
+
+          if (error) {
+            alert('json格式不对');
+            return;
+          }
+
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/importJson',
+            type: 'post',
+            data: {
+              site: this.site,
+              locale: this.locale,
+              data: JSON.stringify(data),
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+            this.isImportShow = false;
+            this.importJson = '';
+            this.getTranslates();
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        getSites: function() {
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/sites',
+            type: 'get',
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+
+            this.siteList = data.result;
+            if (this.siteList.length) {
+              this.site = this.siteList[0];
+              this.getLocales();
+            }
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        getLocales: function() {
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/locales',
+            type: 'get',
+            data: {
+              site: this.site
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+
+            this.localeList = data.result;
+            if (this.localeList.length) {
+              this.locale = this.localeList[0];
+              this.getTranslates();
+            }
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        getTranslates: function() {
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/translates',
+            type: 'get',
+            data: {
+              site: this.site,
+              locale: this.locale,
+              type: this.type,
+              keyword: this.keyword.trim(),
+              context: this.context.trim(),
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+
+            this.translateList = data.result;
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
         }
       },
       mounted: function() {
-
+        this.getSites();
       }
     });
   </script>
