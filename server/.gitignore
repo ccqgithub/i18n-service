@@ -1,9 +1,0 @@
-*.log**
-*.pid
-*.seed
-
-.DS_Store
-.idea
-.tags**
-
-node_modules
