@@ -30,13 +30,13 @@ router.get('/client/mark', function * (next) { console.log('xxx')
 
 // js
 router.get('/client/js', function * (next) {
-  var site = this.request.query.site;
-  var locale = this.request.query.locale;
-  var varName = this.request.query.varname;
+  var site = decodeURIComponent(this.request.query.site);
+  var locale = decodeURIComponent(this.request.query.locale);
+  var varName = decodeURIComponent(this.request.query.varname);
   var result = yield LocaleService.getJson(this, site, locale);
 
-  this.set('Content-type', 'application/json;charset=utf-8');
-  this.body = `window[${varName}]=${JSON.stringify(result, null, 2)}`;
+  this.set('Content-type', 'application/javascript;charset=utf-8');
+  this.body = `window['${varName}']=${JSON.stringify(result, null, 2)}`;
 });
 
 // json

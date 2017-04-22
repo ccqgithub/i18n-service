@@ -54,6 +54,13 @@ router.get('/api/locales', authLogin(), function * (next) {
   this.state.result = yield LocaleService.siteLocaleList(this, site);
 });
 
+// contexts
+router.get('/api/contexts', authLogin(), function * (next) {
+  var site = this.request.query.site;
+  var locale = this.request.query.locale;
+  this.state.result = yield LocaleService.siteLocaleContextList(this, site, locale);
+});
+
 // translates
 router.get('/api/translates', authLogin(), function * (next) {
   this.state.result = yield LocaleService.siteLocaleTranslateList(this, this.request.query);
@@ -66,6 +73,40 @@ router.post('/api/importJson', authLogin(), function * (next) {
   var data = this.request.body.data;
 
   this.state.result = yield LocaleService.importJson(this, site, locale, JSON.parse(data));
+});
+
+// edit item
+router.post('/api/editItem', authLogin(), function * (next) {
+  var _id = this.request.body._id;
+  var value = this.request.body.value;
+
+  this.state.result = yield LocaleService.editItem(this, {
+    _id: _id,
+    value: value,
+  });
+});
+
+// delete item
+router.post('/api/deleteItem', authLogin(), function * (next) {
+  var _id = this.request.body._id;
+  this.state.result = yield LocaleService.deleteItem(this, _id);
+});
+
+// add item
+router.post('/api/addItem', authLogin(), function * (next) {
+  var data = this.request.body;
+  this.state.result = yield LocaleService.addNewItem(this, data);
+});
+
+// 导出
+router.get('/api/exportJson', authLogin(), function * (next) {
+  var site = this.request.query.site;
+  var locale = this.request.query.locale;
+  var result = yield LocaleService.getJson(this, site, locale);
+
+  this.set('Content-disposition', `${site}-${locale}-locale.json`);
+  this.set('Content-type', 'application/json;charset=utf-8');
+  this.body = JSON.stringify(result, null, 2);
 });
 
 module.exports = router;

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>翻译</title>
+  <title>翻译管理</title>
 
   <style>
     *, *::before, *::after {
@@ -17,6 +17,8 @@
     body {
       padding: 20px;
     }
+
+    /*loading*/
     .loading{
       position: fixed;
       left: 0;
@@ -29,11 +31,16 @@
       text-align: center;
       color: #fff;
     }
+
+    /*top*/
     .top {
+      padding: 5px;
+      border: 1px solid #ddd;
+    }
+    .top-line {
       display: flex;
       flex-wrap: wrap;
-      padding: 10px;
-      border: 1px solid #ddd;
+      padding: 5px 0;
     }
     .top select,
     .top input,
@@ -53,28 +60,44 @@
       margin-bottom: 10px;
     }
 
+    /*list*/
     .list {
       margin-top: 20px;
     }
-
     table {
       table-layout: fixed;
       width: 100%;
       border-collapse: collapse;
     }
-
     table th {
       border: 1px solid #ddd;
       background: #eee;
       padding: 5px;
       text-align: left;
     }
-
     table td {
       border: 1px solid #ddd;
       padding: 5px;
     }
+    table button {
+      line-height: 20px;
+      padding: 0 5px;
+      cursor: pointer;
+    }
+    table textarea {
+      width: 100%;
+      height: 50px;
+      padding: 5px;
+      border: 1px solid #ddd;
+    }
+    table input {
+      width: 100%;
+      height: 30px;
+      padding: 5px;
+      border: 1px solid #ddd;
+    }
 
+    /*import*/
     .import {
       position: fixed;
       left: 0;
@@ -117,10 +140,12 @@
 <body>
 
   <div id="app">
+    <!-- loading -->
     <div class="loading" v-if="isLoading">
       loading...
     </div>
 
+    <!-- import -->
     <div class="import" v-if="isImportShow">
       <div class="c">
         <textarea v-model="importJson" placeholder="贴入json..."></textarea>
@@ -131,43 +156,59 @@
       </div>
     </div>
 
+    <!-- top -->
     <div class="top">
-      <div class="top-item">
-        <label>站点：</label>
-        <select v-model="site" @change="getLocales">
-          <option :value="item" v-for="item in siteList">{{item}}</option>
-        </select>
+      <div class="top-line">
+        <div class="top-item">
+          <label>站点：</label>
+          <select v-model="site" @change="getLocales">
+            <option :value="item" v-for="item in siteList">{{item}}</option>
+          </select>
+        </div>
+        <div class="top-item">
+          <label>语言：</label>
+          <select v-model="locale" @change="getContexts">
+            <option :value="item" v-for="item in localeList">{{item}}</option>
+          </select>
+        </div>
+        <div class="top-item">
+          <button type="button" @click="showImport">导入JSON</button>
+        </div>
+        <div class="top-item">
+          <button type="button" @click="exportJson">导出JSON</button>
+        </div>
       </div>
-      <div class="top-item">
-        <label>语言：</label>
-        <select v-model="locale" @change="getTranslates">
-          <option :value="item" v-for="item in localeList">{{item}}</option>
-        </select>
-      </div>
-      <div class="top-item">
-        <label>类型：</label>
-        <select v-model="type" @change="getTranslates">
-          <option value="ALL">全部</option>
-          <option value="TRANSLATED">已翻译</option>
-          <option value="NOT_TRANSLATED">未翻译</option>
-        </select>
-      </div>
-      <div class="top-item">
-        <label>context：</label>
-        <input type="text" v-model="context" placeholder="context..." @change="getTranslates">
-      </div>
-      <div class="top-item">
-        <label>keyword：</label>
-        <input type="text" v-model="keyword" placeholder="key, value" @change="getTranslates">
-      </div>
-      <div class="top-item">
-        <button type="button" @click="getTranslates">搜索</button>
-      </div>
-      <div class="top-item">
-        <button type="button" @click="showImport">导入JSON</button>
+
+      <div class="top-line">
+        <div class="top-item">
+          <label>context：</label>
+          <select v-model="context" @change="getTranslates">
+            <option value="">全部</option>
+            <option :value="item" v-for="item in contextList">{{item}}</option>
+          </select>
+        </div>
+        <div class="top-item">
+          <label>类型：</label>
+          <select v-model="type" @change="getTranslates">
+            <option value="ALL">全部</option>
+            <option value="TRANSLATED">已翻译</option>
+            <option value="NOT_TRANSLATED">未翻译</option>
+          </select>
+        </div>
+        <div class="top-item">
+          <label>keyword：</label>
+          <input type="text" v-model="keyword" placeholder="key, value" @change="getTranslates">
+        </div>
+        <div class="top-item">
+          <button type="button" @click="getTranslates">搜索</button>
+        </div>
+        <div class="top-item">
+          <button type="button" @click="addNewItem">添加</button>
+        </div>
       </div>
     </div>
 
+    <!-- list -->
     <div class="list">
       <table>
         <thead>
@@ -179,13 +220,66 @@
           </tr>
         </thead>
         <tbody>
+          <tr v-if="addForm">
+            <td>
+              <input type="text" v-model="addForm.context" placeholder="context">
+            </td>
+            <td>
+              <input type="text" v-model="addForm.key" placeholder="key">
+            </td>
+            <td>
+              <textarea v-model="addForm.value" placeholder="value"></textarea>
+            </td>
+            <td>
+              <button type="button" @click="saveAdd">保存添加</button>
+              <button type="button" @click="addForm = null">取消添加</button>
+            </td>
+          </tr>
           <tr v-for="item in translateList">
             <td>{{item.context}}</td>
             <td>{{item.key}}</td>
             <td>
-              {{item.value}}
+              <div v-if="!item.editInfo.isEdit">
+                {{item.value}}
+              </div>
+              <div v-if="item.editInfo.isEdit">
+                <textarea v-model="item.editInfo.value"></textarea>
+              </div>
             </td>
-            <td></td>
+            <td>
+              <button
+                type="button"
+                class="button"
+                v-if="!item.editInfo.isEdit"
+                @click="showEditItem(item)"
+              >
+                编辑
+              </button>
+              <button
+                type="button"
+                class="button"
+                v-if="item.editInfo.isEdit"
+                @click="saveEditItem(item)"
+              >
+                保存编辑
+              </button>
+              <button
+                type="button"
+                class="button"
+                @click="item.editInfo.isEdit = false"
+                v-if="item.editInfo.isEdit"
+              >
+                取消编辑
+              </button>
+              <button
+                type="button"
+                class="button"
+                @click="deleteItem(item)"
+                v-if="!item.editInfo.isEdit"
+              >
+                删除
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -193,7 +287,11 @@
   </div>
 
   <script src="/assets/js/jquery-3.2.1.js"></script>
-  <script src="/assets/js/vue.min.js"></script>
+  <script src="/assets/js/vue.js"></script>
+  <!-- <script src="/client/js?site=test&locale=en&varname=localeData"></script>
+  <script type="text/javascript">
+    console.log(localeData)
+  </script> -->
   <script>
     Vue.config.devtools = true;
 
@@ -205,6 +303,7 @@
 
         siteList: [],
         localeList: [],
+        contextList: [],
         translateList: [],
 
         site: '',
@@ -214,8 +313,105 @@
         context: '',
 
         importJson: '',
+
+        addForm: null,
       },
       methods: {
+        // 导出json
+        exportJson: function() {
+          window.open('/api/exportJson?site=' + this.site + '&locale=' + this.locale);
+        },
+        // 保存添加
+        saveAdd: function() {
+          if (!this.site || !this.locale) return;
+          if (!this.addForm.context.trim() || !this.addForm.key.trim()) return;
+
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/addItem',
+            type: 'post',
+            data: {
+              site: this.site,
+              locale: this.locale,
+              context: this.addForm.context.trim(),
+              key: this.addForm.key.trim(),
+              value: this.addForm.value.trim(),
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+            this.addForm = null;
+            this.getContexts();
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        // 显示添加
+        addNewItem: function() {
+          this.addForm = {
+            context: '',
+            key: '',
+            value: '',
+          };
+        },
+        // 删除
+        deleteItem: function(item) {
+          if (!confirm('确定删除吗？')) {
+            return;
+          }
+
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/deleteItem',
+            type: 'post',
+            data: {
+              _id: item._id,
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+            this.getTranslates();
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        // 显示编辑
+        showEditItem: function(item) {
+          item.editInfo.value = item.value;
+          item.editInfo.isEdit = true;
+        },
+        // 保存编辑
+        saveEditItem: function(item) {
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/editItem',
+            type: 'post',
+            data: {
+              _id: item._id,
+              value: item.editInfo.value,
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+            item.value = item.editInfo.value;
+            item.editInfo.isEdit = false;
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        // 显示导入
         showImport: function() {
           if (!this.site || !this.locale) {
             alert('没有选择语言');
@@ -224,6 +420,7 @@
 
           this.isImportShow = true;
         },
+        // 导入
         saveImport: function() {
           var error = false;
 
@@ -282,6 +479,7 @@
             alert('error');
           }.bind(this));
         },
+        // 获取站点列表
         getSites: function() {
           this.isLoading = true;
           $.ajax({
@@ -304,6 +502,7 @@
             alert('error');
           }.bind(this));
         },
+        // 获取语言列表
         getLocales: function() {
           this.isLoading = true;
           $.ajax({
@@ -322,13 +521,41 @@
             this.localeList = data.result;
             if (this.localeList.length) {
               this.locale = this.localeList[0];
-              this.getTranslates();
+              this.getContexts();
             }
           }.bind(this)).fail(function(error) {
             this.isLoading = false;
             alert('error');
           }.bind(this));
         },
+        // 获取context
+        getContexts: function() {
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/contexts',
+            type: 'get',
+            data: {
+              site: this.site,
+              locale: this.locale,
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+
+            this.contextList = data.result;
+            // if (this.contextList.length) {
+            //   this.context = this.contextList[0];
+            // }
+            this.getTranslates();
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
+        },
+        // 查询语言
         getTranslates: function() {
           this.isLoading = true;
           $.ajax({
@@ -348,7 +575,13 @@
               return;
             }
 
-            this.translateList = data.result;
+            this.translateList = data.result.map(function(item) {
+              item.editInfo = {
+                isEdit: false,
+                value: item.value,
+              }
+              return item;
+            });
           }.bind(this)).fail(function(error) {
             this.isLoading = false;
             alert('error');

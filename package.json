@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "pm2 startOrRestart build/pm2.config.js --only=local",
+    "dev": "pm2 startOrRestart build/pm2.config.js --only=i18n-service-local",
+    "release-prod": "pm2 startOrRestart build/pm2.config.js --only=i18n-service-prod",
     "pass": "node script/generate-pass.js"
   },
   "repository": {
