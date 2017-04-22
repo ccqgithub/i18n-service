@@ -9,7 +9,7 @@ module.exports = {
       watch: true,
       env: {
         "NODE_ENV": "development",
-        "NODE_SITE_ENV": "local"
+        "SITE_PROD_ENV": "local"
       },
       error_file: "./log/pm2.log",
       out_file: "./log/pm2.log",
@@ -23,7 +23,7 @@ module.exports = {
       watch: false,
       env: {
         "NODE_ENV": "production",
-        "NODE_SITE_ENV": "prod"
+        "SITE_PROD_ENV": "prod"
       },
       error_file: "./log/pm2.log",
       out_file: "./log/pm2.log",

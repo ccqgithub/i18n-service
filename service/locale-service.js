@@ -4,6 +4,20 @@ var LocaleSchema = require('../db/schema/locale');
 
 var LocaleService = module.exports = {};
 
+// check exists
+LocaleService.checkExist = co.wrap(function * (app, site, locale) {
+  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  var find = yield LocaleModel.findOne({
+    $and: [
+      { site: { $eq: site } },
+      { locale: { $eq: locale } },
+    ]
+  }).exec();
+
+  return !!find;
+});
+
 // 标注未识别翻译
 LocaleService.mark = co.wrap(function * (app, data) {
   var connection = mongoose.createConnection(app.state.config.mongoServer);
@@ -38,7 +52,6 @@ LocaleService.siteList = co.wrap(function * (app) {
 
   return sites;
 });
-
 
 // 获取某一站点的语言列表
 LocaleService.siteLocaleList = co.wrap(function * (app, site) {
@@ -147,6 +160,33 @@ LocaleService.addNewItem = co.wrap(function * (app, data) {
 
   return result;
 });
+
+// 添加 locale
+LocaleService.addLocale = co.wrap(function * (app, data) {
+  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  var find = yield LocaleModel.findOne({
+    $and: [
+      { site: { $eq: data.site } },
+      { locale: { $eq: data.locale } },
+    ]
+  }).exec();
+
+  if (find) {
+    throw new Error('语言已存在！');
+  };
+
+  var result = yield LocaleModel.create({
+    site: data.site,
+    locale: data.locale,
+    context: 'test',
+    key: 'test',
+    value: 'test',
+  });
+
+  return result;
+});
+
 
 // 获取某一站点，某一语言的所有翻译
 LocaleService.getJson = co.wrap(function * (app, site, locale) {

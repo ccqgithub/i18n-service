@@ -13,10 +13,10 @@
 
 - `build/pm2.config.js`: pm2启动服务器配置
 ```
-NODE_SITE_ENV 用于区分不同发布环境，加载不同配置参数
+SITE_PROD_ENV 用于区分不同发布环境，加载不同配置参数
 ```
 
-- `config/env`: 配置不同发布环境的相关参数，对应`process.env.NODE_SITE_ENV`, 如果`NODE_SITE_ENV`为local, 则会加载`config/env/local.js`
+- `config/env`: 配置不同发布环境的相关参数，对应`process.env.SITE_PROD_ENV`, 如果`SITE_PROD_ENV`为local, 则会加载`config/env/local.js`
 
 ```txt
   服务端口(port)、mongodb server连接配置(mongoServer)、配置页面登录用户名(loginUser)密码(loginPass)等……详情见`config/env/locale.js`。

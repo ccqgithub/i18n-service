@@ -98,6 +98,12 @@ router.post('/api/addItem', authLogin(), function * (next) {
   this.state.result = yield LocaleService.addNewItem(this, data);
 });
 
+// add locale
+router.post('/api/addLocale', authLogin(), function * (next) {
+  var data = this.request.body;
+  this.state.result = yield LocaleService.addLocale(this, data);
+});
+
 // 导出
 router.get('/api/exportJson', authLogin(), function * (next) {
   var site = this.request.query.site;

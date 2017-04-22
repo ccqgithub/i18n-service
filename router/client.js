@@ -13,11 +13,17 @@ var debug = require('debug')('app:router-main');
 var LocaleService = require('../service/locale-service');
 
 // mark
-router.get('/client/mark', function * (next) { console.log('xxx')
+router.get('/client/mark', function * (next) {
   var site = this.request.query.site;
   var locale = this.request.query.locale;
   var context = this.request.query.context;
   var key = this.request.query.key;
+  var exist = LocaleService.checkExist(this, site, locale);
+
+  if (!exist) {
+    this.throw('locale not exist');
+  }
+
   var result = yield LocaleService.mark(this, {
     site: site.trim(),
     locale: locale.trim(),

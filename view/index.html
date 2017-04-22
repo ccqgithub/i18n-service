@@ -177,6 +177,9 @@
         <div class="top-item">
           <button type="button" @click="exportJson">导出JSON</button>
         </div>
+        <div class="top-item">
+          <button type="button" @click="addLocale">添加语言</button>
+        </div>
       </div>
 
       <div class="top-line">
@@ -320,6 +323,39 @@
         // 导出json
         exportJson: function() {
           window.open('/api/exportJson?site=' + this.site + '&locale=' + this.locale);
+        },
+        // 添加语言
+        addLocale: function() {
+          var str = prompt('请输入站点和语言（sitename,zh-cn');
+          var site, locale;
+
+          if (str.trim().split(',').length != 2) {
+            alert('格式不对');
+            return;
+          }
+
+          site = str.split(',')[0];
+          locale = str.split(',')[1];
+
+          this.isLoading = true;
+          $.ajax({
+            url: '/api/addLocale',
+            type: 'post',
+            data: {
+              site: site,
+              locale: locale,
+            }
+          }).done(function(data) {
+            this.isLoading = false;
+            if (data.status != 200) {
+              alert(data.message);
+              return;
+            }
+            alert('添加成功');
+          }.bind(this)).fail(function(error) {
+            this.isLoading = false;
+            alert('error');
+          }.bind(this));
         },
         // 保存添加
         saveAdd: function() {

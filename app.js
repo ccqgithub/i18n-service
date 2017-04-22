@@ -8,7 +8,7 @@ var fs = require('fs');
 var path = require('path');
 var yaml = require('js-yaml');
 
-var env = process.env.NODE_SITE_ENV || 'local';
+var env = process.env.SITE_PROD_ENV || 'local';
 var config = require(path.join(__dirname, './config/env', env + '.js'));
 
 // env
@@ -135,7 +135,8 @@ app.use(function * (next) {
 
 // body
 app.use(bodyParser({
-  multipart: true
+  multipart: true,
+  formLimit: 10 * 1024 * 1024,
 }));
 
 // views
