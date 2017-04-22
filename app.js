@@ -55,11 +55,11 @@ app.use(conditional());
 app.use(etag());
 
 // 跨域配置
-// app.use(cors({
-//   origin: function(request) {
-//     return '*';
-//   }
-// }));
+app.use(cors({
+  origin: function(request) {
+    return '*';
+  }
+}));
 
 // 静态文件
 app.use(staticServe(path.join(__dirname, './static'), {
