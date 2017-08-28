@@ -28,6 +28,7 @@ var etag = require('koa-etag');
 var rewrite = require('koa-rewrite');
 var prerender = require('koa-prerender-m');
 var debug = require('debug')('app:boot');
+var mongoose = require('mongoose');
 
 // new app
 var app = koa();
@@ -37,6 +38,7 @@ app.name = 'i18n-service';
 app.proxy = true; //如果为 true，则解析 "Host" 的 header 域，并支持 X-Forwarded-Host
 app.subdomainOffset = 2; //默认为2，表示 .subdomains 所忽略的字符偏移量。
 app.root = __dirname;
+app.db = null;
 
 // err events
 app.on('error', function(err){
@@ -88,6 +90,12 @@ app.use(function * (next) {
   this.state.config = config;
   this.state.remote = this.state.remote || {};
   this.state.locals = this.state.locals || {};
+  this.state.getDB = () => {
+    if (!app.db) {
+      app.db = mongoose.connect(config.mongoServer);
+    }
+    return app.db;
+  }
 
   // is ajax xhr
   this.state.remote.isAjax = this.request.headers['x-requested-with'] && this

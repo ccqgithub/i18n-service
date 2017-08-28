@@ -6,7 +6,7 @@ var LocaleService = module.exports = {};
 
 // check exists
 LocaleService.checkExist = co.wrap(function * (app, site, locale) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var find = yield LocaleModel.findOne({
     $and: [
@@ -20,7 +20,7 @@ LocaleService.checkExist = co.wrap(function * (app, site, locale) {
 
 // 标注未识别翻译
 LocaleService.mark = co.wrap(function * (app, data) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var find = yield LocaleModel.findOne({
     $and: [
@@ -46,7 +46,7 @@ LocaleService.mark = co.wrap(function * (app, data) {
 
 // 获取站点列表
 LocaleService.siteList = co.wrap(function * (app) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var sites = yield LocaleModel.distinct('site').exec();
 
@@ -55,7 +55,7 @@ LocaleService.siteList = co.wrap(function * (app) {
 
 // 获取某一站点的语言列表
 LocaleService.siteLocaleList = co.wrap(function * (app, site) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var locales = yield LocaleModel.distinct('locale', {site: site}).exec();
 
@@ -64,7 +64,7 @@ LocaleService.siteLocaleList = co.wrap(function * (app, site) {
 
 // 获取某一站点的语言列表
 LocaleService.siteLocaleContextList = co.wrap(function * (app, site, locale) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var contexts = yield LocaleModel.distinct('context', {
     site: site,
@@ -77,7 +77,7 @@ LocaleService.siteLocaleContextList = co.wrap(function * (app, site, locale) {
 // 获取某一站点，某一语言的所有翻译
 // site, locale, type, context, keyword
 LocaleService.siteLocaleTranslateList = co.wrap(function * (app, params) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var search = [
     { site: { $eq: params.site } },
@@ -109,7 +109,7 @@ LocaleService.siteLocaleTranslateList = co.wrap(function * (app, params) {
 
 // 保存item
 LocaleService.editItem = co.wrap(function * (app, data) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
 
   var updateResult = yield LocaleModel.update({
@@ -123,7 +123,7 @@ LocaleService.editItem = co.wrap(function * (app, data) {
 
 // 删除item
 LocaleService.deleteItem = co.wrap(function * (app, id) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
 
   var updateResult = yield LocaleModel.deleteOne({
@@ -135,7 +135,7 @@ LocaleService.deleteItem = co.wrap(function * (app, id) {
 
 // 添加item
 LocaleService.addNewItem = co.wrap(function * (app, data) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var find = yield LocaleModel.findOne({
     $and: [
@@ -163,7 +163,7 @@ LocaleService.addNewItem = co.wrap(function * (app, data) {
 
 // 添加 locale
 LocaleService.addLocale = co.wrap(function * (app, data) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var find = yield LocaleModel.findOne({
     $and: [
@@ -190,7 +190,7 @@ LocaleService.addLocale = co.wrap(function * (app, data) {
 
 // 获取某一站点，某一语言的所有翻译
 LocaleService.getJson = co.wrap(function * (app, site, locale) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var result = {};
   var translates = yield LocaleModel.find({
@@ -210,7 +210,7 @@ LocaleService.getJson = co.wrap(function * (app, site, locale) {
 
 // 导入json
 LocaleService.importJson = co.wrap(function * (app, site, locale, data) {
-  var connection = mongoose.createConnection(app.state.config.mongoServer);
+  var connection = app.state.getDB();
   var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
   var sources = [];
   var exists = [];
