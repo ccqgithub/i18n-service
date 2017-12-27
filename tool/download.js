@@ -59,6 +59,7 @@ module.exports = async function(config={}) {
   let server = config.server;
   let site = config.site;
   let dir = config.dir;
+  let flatContext = config.flatContext || 'com';
   let data;
   
   if (!locales.length || !server || !site || !dir) {
@@ -74,6 +75,11 @@ module.exports = async function(config={}) {
       data = {};
       console.log(`==== download error: ${locale} ====`);
       console.log(e);
+    }
+
+    if (typeof data[flatContext] == 'object') {
+      data = Object.assign({}, data[flatContext], data);
+      delete data[flatContext];
     }
 
     let file = path.join(dir, './' + locale + '.json');

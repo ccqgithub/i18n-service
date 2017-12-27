@@ -16,6 +16,9 @@ download({
   server: 'http://8.8.8.8:50011/',
   locales: ['zh-CN', 'en'],
   site: 'test',
+  // 将指定的context设为公共context，下载的时候打平到json，便于调用
+  // {"com": {"a": 1, "b": 2}, "c": 3} => {"a": 1, "b": 2, "c": 3}
+  flatContext: 'com', 
   dir: dir
 }).then(data => {
   console.log('download i18n success');
