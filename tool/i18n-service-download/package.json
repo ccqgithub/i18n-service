@@ -1,6 +1,6 @@
 {
   "name": "i18n-service-download",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ccqgithub/i18n-service.git/tool/i18n-service-download"
+    "url": "https://github.com/ccqgithub/i18n-service/tree/master/tool/i18n-service-download"
   },
   "author": "",
   "license": "ISC",

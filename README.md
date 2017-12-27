@@ -96,7 +96,7 @@ window['varname'] = {
 }
 ```
 
-## 辅助工具: [i18n-service-download]()
+## 辅助工具: [i18n-service-download](https://github.com/ccqgithub/i18n-service/tree/master/tool/i18n-service-download)
 
 > 下载反应json文件辅助工具
 
