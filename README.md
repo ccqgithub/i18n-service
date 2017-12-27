@@ -96,33 +96,7 @@ window['varname'] = {
 }
 ```
 
-## 辅助工具: [i18n-service-download](https://github.com/ccqgithub/i18n-service/tree/master/tool/i18n-service-download)
+## 辅助工具
 
-> 下载反应json文件辅助工具
-
-安装
-
-```sh
-npm i i18n-service-download -S
-```
-
-使用: write the scripts in your js, then run that js
-
-```
-const path = require('path');
-const download = require('i18n-service-download');
-
-const dir = path.resolve(__dirname, '../server/i18n/temp/');
-
-download({
-  server: 'http://8.8.8.8:50011/',
-  locales: ['zh-CN', 'en'],
-  site: 'test',
-  dir: dir
-}).then(data => {
-  console.log('download i18n success');
-}).catch(err => {
-  console.log(err)
-  console.log('download i18n error');
-});
-```
+- 下载json：[i18n-service-tool/download](https://github.com/ccqgithub/i18n-service/tree/master/service).
+- 密码工具：[i18n-service-tool/pass](https://github.com/ccqgithub/i18n-service/tree/master/pass).

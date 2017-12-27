@@ -1,13 +1,7 @@
-"use strict"
-
-/**
- * 主路由
- */
-
 var os = require('os');
 var fs = require('fs');
 var path = require('path');
-var crypto = require('crypto');
+var bcrypt = require('bcryptjs');
 var router = require('koa-router')();
 var debug = require('debug')('app:router-main');
 var authLogin = require('../middleware/auth-login');
@@ -26,15 +20,12 @@ router.get('/login', function * (next) {
 // login
 router.post('/api/login', function * (next) {
   var data = this.request.body;
-  var sha1 = crypto.createHash('sha1');
-  var password;
-
-  sha1.update(data.password + 'ooxxxx');
-  password = sha1.digest('hex');
+  var hash = this.state.config.loginPass;
+  var isPasswordRight = bcrypt.compare(data.password, hash);
 
   if (
     this.state.config.loginUser != data.username ||
-    this.state.config.loginPass != password
+    !isPasswordRight
   ) {
     this.throw('用户名或密码不对');
   }

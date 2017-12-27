@@ -1,13 +1,11 @@
-var crypto = require('crypto');
+var pass = require('i18n-service-tool/pass');
 var program = require('commander');
 
 program
   .option('--pass [pass]', 'password')
   .parse(process.argv);
 
-var sha1 = crypto.createHash('sha1');
-
-sha1.update(program.pass + 'ooxxxx');
+var hash = pass.generate(program.pass, 8);
 
 console.log(program.pass);
-console.log(sha1.digest('hex'));
+console.log(hash);
