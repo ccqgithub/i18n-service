@@ -8,6 +8,6 @@ module.exports = {
 
   // login
   loginUser: 'admin',
-  loginPass: '3e1e90f5d4f1ae039de72fdb2c423a87ba5520c2'
+  loginPass: '$2a$08$o.DiinIdVy6RiUx1gqkD2OPrCL14w0zoJb.NBYhEEJ3T1aAvvyMJa'
 
 }

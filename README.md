@@ -56,8 +56,8 @@ tail -f log/pm2.log
 
 > `config/env/xxx.js`
 
-- `loginUser`
-- `loginPass`, 加密过的密码
+- `loginUser` 登录用户名 默认：admin
+- `loginPass`, 加密过的密码 默认：123456
 
 ## 获取加密密码
 
