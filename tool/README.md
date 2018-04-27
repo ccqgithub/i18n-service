@@ -19,8 +19,10 @@ download({
   // 将指定的context设为公共context，下载的时候打平到json，便于调用
   // {"com": {"a": 1, "b": 2}, "c": 3} => {"a": 1, "b": 2, "c": 3}
   flatContext: 'com', 
-  ext: '.json',
-  transform: function(data) { return data },
+  extension: '.json',
+  transform: function(data) {
+    return JSON.stringify(data, null, 2);
+  },
   dir: dir
 }).then(data => {
   console.log('download i18n success');

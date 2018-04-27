@@ -59,8 +59,10 @@ module.exports = async function(config={}) {
   let server = config.server;
   let site = config.site;
   let dir = config.dir;
-  let ext = config.ext || '.json';
-  let transform = config.transform || ((data) => data);
+  let extension = config.extension || '.json';
+  let transform = config.transform || function(data) {
+    return JSON.stringify(data, null, 2);
+  };
   let flatContext = config.flatContext || 'com';
   let data;
   
@@ -84,13 +86,10 @@ module.exports = async function(config={}) {
       delete data[flatContext];
     }
 
-    // transform
-    data = transform(data);
-    
-    let file = path.join(dir, './' + locale + ext);
+    let file = path.join(dir, './' + locale + extension);
 
     mkdirsSync(path.dirname(file));
-    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    fs.writeFileSync(file, transform(data));
     console.log(`save success: ${file}`);
   }
 }
