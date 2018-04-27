@@ -59,6 +59,8 @@ module.exports = async function(config={}) {
   let server = config.server;
   let site = config.site;
   let dir = config.dir;
+  let ext = config.ext || '.json';
+  let transform = config.transform || ((data) => data);
   let flatContext = config.flatContext || 'com';
   let data;
   
@@ -82,7 +84,10 @@ module.exports = async function(config={}) {
       delete data[flatContext];
     }
 
-    let file = path.join(dir, './' + locale + '.json');
+    // transform
+    data = transform(data);
+    
+    let file = path.join(dir, './' + locale + ext);
 
     mkdirsSync(path.dirname(file));
     fs.writeFileSync(file, JSON.stringify(data, null, 2));
