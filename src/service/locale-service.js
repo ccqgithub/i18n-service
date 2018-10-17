@@ -1,14 +1,12 @@
-var mongoose = require('mongoose');
-var co = require('co');
-var LocaleSchema = require('../db/schema/locale');
+const LocaleSchema = require('../db/schema/locale');
 
-var LocaleService = module.exports = {};
+const LocaleService = module.exports = {};
 
 // check exists
-LocaleService.checkExist = co.wrap(function * (app, site, locale) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var find = yield LocaleModel.findOne({
+LocaleService.checkExist = async (app, site, locale) => {
+  const connection = await app.getDB();
+  const LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let find = await LocaleModel.findOne({
     $and: [
       { site: { $eq: site } },
       { locale: { $eq: locale } },
@@ -16,13 +14,13 @@ LocaleService.checkExist = co.wrap(function * (app, site, locale) {
   }).exec();
 
   return !!find;
-});
+};
 
 // 标注未识别翻译
-LocaleService.mark = co.wrap(function * (app, data) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var find = yield LocaleModel.findOne({
+LocaleService.mark = async (app, data) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let find = await LocaleModel.findOne({
     $and: [
       { site: { $eq: data.site } },
       { locale: { $eq: data.locale } },
@@ -33,7 +31,7 @@ LocaleService.mark = co.wrap(function * (app, data) {
 
   if (find) return true;
 
-  var result = yield LocaleModel.create({
+  let result = await LocaleModel.create({
     site: data.site,
     locale: data.locale,
     context: data.context,
@@ -42,44 +40,44 @@ LocaleService.mark = co.wrap(function * (app, data) {
   });
 
   return true;
-});
+};
 
 // 获取站点列表
-LocaleService.siteList = co.wrap(function * (app) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var sites = yield LocaleModel.distinct('site').exec();
+LocaleService.siteList = async (app) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let sites = await LocaleModel.distinct('site').exec();
 
   return sites;
-});
+};
 
 // 获取某一站点的语言列表
-LocaleService.siteLocaleList = co.wrap(function * (app, site) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var locales = yield LocaleModel.distinct('locale', {site: site}).exec();
+LocaleService.siteLocaleList = async (app, site) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let locales = await LocaleModel.distinct('locale', {site: site}).exec();
 
   return locales;
-});
+};
 
 // 获取某一站点的语言列表
-LocaleService.siteLocaleContextList = co.wrap(function * (app, site, locale) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var contexts = yield LocaleModel.distinct('context', {
+LocaleService.siteLocaleContextList = async (app, site, locale) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let contexts = await LocaleModel.distinct('context', {
     site: site,
     locale: locale,
   }).exec();
 
   return contexts;
-});
+};
 
 // 获取某一站点，某一语言的所有翻译
 // site, locale, type, context, keyword
-LocaleService.siteLocaleTranslateList = co.wrap(function * (app, params) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var search = [
+LocaleService.siteLocaleTranslateList = async (app, params) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let search = [
     { site: { $eq: params.site } },
     { locale: { $eq: params.locale } },
   ];
@@ -100,44 +98,44 @@ LocaleService.siteLocaleTranslateList = co.wrap(function * (app, params) {
     });
   }
 
-  var translates = yield LocaleModel.find({
+  let translates = await LocaleModel.find({
     $and: search
   }).exec();
 
   return translates;
-});
+};
 
 // 保存item
-LocaleService.editItem = co.wrap(function * (app, data) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+LocaleService.editItem = async (app, data) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
 
-  var updateResult = yield LocaleModel.update({
+  let updateResult = await LocaleModel.update({
     _id: data._id
   }, {
     value: data.value
   }).exec();
 
   return true;
-});
+};
 
 // 删除item
-LocaleService.deleteItem = co.wrap(function * (app, id) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+LocaleService.deleteItem = async (app, id) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
 
-  var updateResult = yield LocaleModel.deleteOne({
+  let updateResult = await LocaleModel.deleteOne({
     _id: id
   }).exec();
 
   return true;
-});
+};
 
 // 添加item
-LocaleService.addNewItem = co.wrap(function * (app, data) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var find = yield LocaleModel.findOne({
+LocaleService.addNewItem = async (app, data) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let find = await LocaleModel.findOne({
     $and: [
       { site: { $eq: data.site } },
       { locale: { $eq: data.locale } },
@@ -150,7 +148,7 @@ LocaleService.addNewItem = co.wrap(function * (app, data) {
     throw new Error('内容已存在！');
   };
 
-  var result = yield LocaleModel.create({
+  let result = await LocaleModel.create({
     site: data.site,
     locale: data.locale,
     context: data.context,
@@ -159,13 +157,13 @@ LocaleService.addNewItem = co.wrap(function * (app, data) {
   });
 
   return result;
-});
+};
 
 // 添加 locale
-LocaleService.addLocale = co.wrap(function * (app, data) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var find = yield LocaleModel.findOne({
+LocaleService.addLocale = async (app, data) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let find = await LocaleModel.findOne({
     $and: [
       { site: { $eq: data.site } },
       { locale: { $eq: data.locale } },
@@ -176,7 +174,7 @@ LocaleService.addLocale = co.wrap(function * (app, data) {
     throw new Error('语言已存在！');
   };
 
-  var result = yield LocaleModel.create({
+  let result = await LocaleModel.create({
     site: data.site,
     locale: data.locale,
     context: 'test',
@@ -185,15 +183,15 @@ LocaleService.addLocale = co.wrap(function * (app, data) {
   });
 
   return result;
-});
+};
 
 
 // 获取某一站点，某一语言的所有翻译
-LocaleService.getJson = co.wrap(function * (app, site, locale) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var result = {};
-  var translates = yield LocaleModel.find({
+LocaleService.getJson = async (app, site, locale) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let result = {};
+  let translates = await LocaleModel.find({
     $and: [
       { site: { $eq: site } },
       { locale: { $eq: locale } },
@@ -206,22 +204,22 @@ LocaleService.getJson = co.wrap(function * (app, site, locale) {
   });
 
   return result;
-});
+};
 
 // 导入json
-LocaleService.importJson = co.wrap(function * (app, site, locale, data) {
-  var connection = app.state.getDB();
-  var LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
-  var sources = [];
-  var exists = [];
-  var inserts = [];
-  var updates = [];
-  var existsObj = {};
+LocaleService.importJson = async (app, site, locale, data) => {
+  let connection = await app.getDB();
+  let LocaleModel = connection.model('Locale', LocaleSchema, 'locale');
+  let sources = [];
+  let exists = [];
+  let inserts = [];
+  let updates = [];
+  let existsObj = {};
 
   Object.keys(data).forEach(function(context) {
-    var obj = data[context];
+    let obj = data[context];
     Object.keys(obj).forEach(function(key) {
-      var value = obj[key];
+      let value = obj[key];
       sources.push({
         site: site,
         locale: locale,
@@ -233,7 +231,7 @@ LocaleService.importJson = co.wrap(function * (app, site, locale, data) {
   });
 
   // exists
-  exists =  yield LocaleModel.find({
+  exists =  await LocaleModel.find({
     $and: [
       { site: { $eq: site } },
       { locale: { $eq: locale } },
@@ -257,14 +255,14 @@ LocaleService.importJson = co.wrap(function * (app, site, locale, data) {
   });
 
   // inserts
-  var insertResult = yield LocaleModel.create(inserts);
+  let insertResult = await LocaleModel.create(inserts);
 
   // updates
   for (var i = 0, l = updates.length; i < l; i++) {
-    var updateResult = yield LocaleModel.update({
+    let updateResult = await LocaleModel.update({
       _id: updates[i].exist._id
     }, updates[i].source).exec();
   }
 
   return true;
-});
+};

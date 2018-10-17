@@ -347,8 +347,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
             alert('添加成功');
@@ -375,8 +375,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
             this.addForm = null;
@@ -409,8 +409,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
             this.getTranslates();
@@ -436,8 +436,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
             item.value = item.editInfo.value;
@@ -503,8 +503,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
             this.isImportShow = false;
@@ -523,8 +523,8 @@
             type: 'get',
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
 
@@ -549,8 +549,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
 
@@ -576,8 +576,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
 
@@ -606,8 +606,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
 

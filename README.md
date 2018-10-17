@@ -11,27 +11,16 @@
 
 > 新增一个发布环境时， 修改下面这三个文件。
 
-- `build/pm2.config.js`: pm2启动服务器配置
-```
-SITE_PROD_ENV 用于区分不同发布环境，加载不同配置参数
+- `config/pm2.config.js`: pm2启动服务器配置
+
+```js
+process.env.NODE_ENV  // 开发版 development，生产环境 production
+process.env.APP_ENV // 用于区分不同发布环境，加载不同配置参数
 ```
 
-- `config/env`: 配置不同发布环境的相关参数，对应`process.env.SITE_PROD_ENV`, 如果`SITE_PROD_ENV`为local, 则会加载`config/env/local.js`
-
-```txt
-  服务端口(port)、mongodb server连接配置(mongoServer)、配置页面登录用户名(loginUser)密码(loginPass)等……详情见`config/env/locale.js`。
-```
+- `config/env.conf.js`: 配置不同发布环境的相关参数，对应`process.env.APP_ENV`
 
 - `package.json > scripts`: 配置便捷发布
-
-```json
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "dev": "pm2 startOrRestart build/pm2.config.js --only=i18n-service-local",
-  "release-prod": "pm2 startOrRestart build/pm2.config.js --only=i18n-service-prod",
-  "pass": "node script/generate-pass.js"
-},
-```
 
 ## 启动service
 
@@ -46,10 +35,13 @@ npm install
 npm run dev
 
 # 或者发布生产
-npm run release-prod
+npm run deploy-prod
 
 # 查看日志
 tail -f log/pm2.log
+
+# or
+pm2 log
 ```
 
 ## 用户名密码
@@ -98,5 +90,5 @@ window['varname'] = {
 
 ## 辅助工具
 
-- 下载json：[i18n-service-tool/download](https://github.com/ccqgithub/i18n-service/tree/master/service).
-- 密码工具：[i18n-service-tool/pass](https://github.com/ccqgithub/i18n-service/tree/master/pass).
+- 下载json：[./tool/](https://github.com/ccqgithub/i18n-service/tree/master/service).
+- 密码工具：[./tool/](https://github.com/ccqgithub/i18n-service/tree/master/pass).

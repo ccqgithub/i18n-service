@@ -70,8 +70,8 @@
             }
           }).done(function(data) {
             this.isLoading = false;
-            if (data.status != 200) {
-              alert(data.message);
+            if (data.error) {
+              alert(data.error.message);
               return;
             }
             window.location.href = '/';
