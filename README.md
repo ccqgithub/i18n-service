@@ -90,5 +90,5 @@ window['varname'] = {
 
 ## 辅助工具
 
-- 下载json：[./tool/](https://github.com/ccqgithub/i18n-service/tree/master/service).
-- 密码工具：[./tool/](https://github.com/ccqgithub/i18n-service/tree/master/pass).
+- 下载json：[i18n-service-tool](https://github.com/ccqgithub/i18n-service/tree/master/tool).
+- 密码工具：[i18n-service-tool](https://github.com/ccqgithub/i18n-service/tree/master/tool).

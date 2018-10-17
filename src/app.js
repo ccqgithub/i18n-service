@@ -8,7 +8,7 @@ const morgan = require('morgan');
 const session = require('koa-session');
 const staticServe = require('koa-static');
 const helmet = require('koa-helmet');
-const ipFilter = require('koa-ip');
+// const ipFilter = require('koa-ip');
 const bodyParser = require('koa-body');
 const conditional = require('koa-conditional-get');
 const compress = require('koa-compress');
@@ -58,16 +58,16 @@ app.use(async (ctx, next) => {
 });
 
 // ip filter
-app.use(
-  ipFilter({
-    whitelist: ['[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*'],
-    blacklist: ['127\\.110\\.0\\.\\[0-9]*'],
-    handler: async (ctx) => {
-      console.log(ctx.ip);
-      ctx.status = 403;
-    },
-  }),
-);
+// app.use(
+//   ipFilter({
+//     whitelist: ['[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*'],
+//     blacklist: ['127\\.110\\.0\\.\\[0-9]*'],
+//     handler: async (ctx) => {
+//       console.log(ctx.ip);
+//       ctx.status = 403;
+//     },
+//   }),
+// );
 
 // cors 跨域
 app.use(
